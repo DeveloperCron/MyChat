@@ -7,12 +7,12 @@
     android:layout_height="match_parent"
     android:background="@color/background_default"
     android:padding="20dp"
-    tools:context=".authentication.LoginActivity">
+    tools:context=".authentication.RegisterActivity">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/login"
+        android:text="@string/register"
         android:textColor="@color/white"
         android:textSize="40sp"
         android:textStyle="bold"
@@ -71,12 +71,12 @@
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/loginButton"
+        android:id="@+id/registerButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:background="@color/blue"
-        android:text="@string/login"
+        android:text="@string/register"
         app:backgroundTint="@color/blue"
         app:cornerRadius="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -87,10 +87,10 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/registerButton"
+        android:id="@+id/loginButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Don't have an account? Register!"
+        android:text="Have an account? Login!"
         android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="14sp"
@@ -98,7 +98,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/loginButton"
+        app:layout_constraintTop_toBottomOf="@+id/registerButtonButton"
         app:layout_constraintVertical_bias="0.843" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
