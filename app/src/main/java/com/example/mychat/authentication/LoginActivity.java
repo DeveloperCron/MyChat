@@ -1,6 +1,8 @@
 package com.example.mychat.authentication;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.mychat.classes.User;
 import com.example.mychat.constants.Tags;
 import com.example.mychat.databinding.ActivityLoginBinding;
+import com.example.mychat.home.HomeActivity;
 import com.example.mychat.utils.GetTextUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -21,6 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding _binding;
     private FirebaseAuth _firebaseAuth;
     private FirebaseFirestore _fireStoreDatabase;
+    private SharedPreferences _sharedPreferences;
     private User _user;
 
     @Override
@@ -38,6 +42,16 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+
+        // Getting data from sharedPreferences
+        String sharedEmail = getFromShared(Tags.SharedPreferencesTags.EMAIL_TAG);
+        String sharedPassword = getFromShared(Tags.SharedPreferencesTags.PASSWORD_TAG);
+
+        if (sharedEmail != null && sharedPassword != null) {
+           _binding.emailInput.getEditText().setText(sharedEmail);
+           _binding.passwordInput.getEditText().setText(sharedPassword);
+        }
+
         _binding.loginButton.setOnClickListener(v -> {
             String email = GetTextUtils.getTextFromInput(_binding.emailInput);
             String password = GetTextUtils.getTextFromInput(_binding.passwordInput);
@@ -53,6 +67,9 @@ public class LoginActivity extends AppCompatActivity {
 
                             assert _currentUser != null;
                             initializeUser(_currentUser);
+
+                            insertInShared(email, password);
+                            startActivity(new Intent(this, HomeActivity.class));
                         } else {
                             // If sign in fails, display a message to the user
                             Log.w(Tags.FirebaseTags.FIREBASE_AUTH_TAG, "signInWithEmail:failure", task.getException());
@@ -65,6 +82,22 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(new Intent(getApplicationContext(), RegisterActivity.class));
             finish();
         });
+    }
+
+    protected String getFromShared(String tag){
+        _sharedPreferences = getApplicationContext().getSharedPreferences(Tags.SharedPreferencesTags.AUTHENTICATION_TAG, Context.MODE_PRIVATE);
+        if (_sharedPreferences.contains(tag)) {
+            return _sharedPreferences.getString(tag, "");
+        }
+        return null;
+    }
+
+    protected void insertInShared(String email, String password){
+        _sharedPreferences = getApplicationContext().getSharedPreferences(Tags.SharedPreferencesTags.AUTHENTICATION_TAG, Context.MODE_PRIVATE);
+        SharedPreferences.Editor _editor = _sharedPreferences.edit();
+        _editor.putString(Tags.SharedPreferencesTags.EMAIL_TAG, email);
+        _editor.putString(Tags.SharedPreferencesTags.PASSWORD_TAG, password);
+        _editor.apply();
     }
     protected void initializeUser(FirebaseUser _currentUser) {
         DocumentReference userDocRef = _fireStoreDatabase.collection(Tags.FirebaseTags.USERS_COLLECTION).document(_currentUser.getUid());

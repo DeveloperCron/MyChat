@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.mychat.authentication.LoginActivity;
+import com.example.mychat.home.HomeActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         if (currentUser != null) {
-            // @TODO add intent here to home activity
+            startActivity(new Intent(this, HomeActivity.class));
         } else {
             startActivity(new Intent(this, LoginActivity.class));
         }
