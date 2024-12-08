@@ -1,16 +1,13 @@
 package com.example.mychat.home;
 
 import android.os.Bundle;
-import android.view.MenuItem;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.mychat.R;
-import com.example.mychat.classes.User;
+import com.example.mychat.classes.UserSingleton;
 import com.example.mychat.databinding.ActivityHomeBinding;
-import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -20,7 +17,7 @@ public class HomeActivity extends AppCompatActivity {
     private FirebaseAuth _firebaseAuth;
     private FirebaseFirestore _firestoreDatabase;
     private FragmentManager _fragmentManager;
-    private User _user;
+    private UserSingleton _userSingleton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +30,7 @@ public class HomeActivity extends AppCompatActivity {
         _fragmentManager = getSupportFragmentManager();
         _firebaseAuth = FirebaseAuth.getInstance();
         _firestoreDatabase = FirebaseFirestore.getInstance();
-        _user = User.getInstance();
+        _userSingleton = UserSingleton.getInstance();
     }
 
     @Override

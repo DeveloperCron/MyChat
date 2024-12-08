@@ -5,11 +5,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.mychat.classes.User;
+import com.example.mychat.classes.UserSingleton;
 import com.example.mychat.constants.Tags;
 import com.example.mychat.databinding.ActivityLoginBinding;
 import com.example.mychat.home.HomeActivity;
@@ -25,7 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth _firebaseAuth;
     private FirebaseFirestore _fireStoreDatabase;
     private SharedPreferences _sharedPreferences;
-    private User _user;
+    private UserSingleton _userSingleton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
 
         _firebaseAuth = FirebaseAuth.getInstance();
         _fireStoreDatabase = FirebaseFirestore.getInstance();
-        _user = User.getInstance();
+        _userSingleton = UserSingleton.getInstance();
     }
 
     @Override
@@ -105,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 DocumentSnapshot documentSnapshot = task.getResult();
                 if (documentSnapshot.exists()) {
-                    _user = documentSnapshot.toObject(User.class);
+                    _userSingleton = documentSnapshot.toObject(UserSingleton.class);
                     Log.d(Tags.FirebaseTags.FIREBASE_FIRESTORE_TAG, "Retrieved document snapshot for " + _currentUser.getUid() + " Successfully");
                 } else {
                     Log.d(Tags.FirebaseTags.FIREBASE_FIRESTORE_TAG, "Failed to retrieve document");
