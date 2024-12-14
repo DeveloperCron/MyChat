@@ -12,4 +12,15 @@ public class Tags {
         public static String EMAIL_TAG = "EMAIL";
         public static String PASSWORD_TAG = "PASSWORD";
     }
+
+    public static class Debugger {
+        public static String DEBUG_KEY = "DEBUG";
+    }
+
+    public static class USER_FIELDS {
+        public static String FIRST_NAME = "first_name";
+        public static String SECOND_NAME = "second_name";
+        public static String EMAIL = "email";
+        public static String PROFILE_PICTURE = "photo";
+    }
 }

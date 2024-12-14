@@ -2,30 +2,49 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_margin="10dp"
-    android:padding="10dp"
-    android:background="@color/gray_900"
-    >
+    android:orientation="horizontal"
+    android:layout_margin="5dp"
+    android:background="@color/black"
+    android:padding="10dp">
 
-    <TextView
-        android:id="@+id/user_name"
-        android:layout_width="match_parent"
+    <!-- User Details -->
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="@color/gray_400"
-        android:text="@string/username"
-        android:textStyle="bold" />
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:paddingEnd="10dp">
 
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:text="@string/username"
+            android:fontFamily="@font/ggsans_bold"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/user_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/gray_400"
+            android:text="Last message..."
+            android:fontFamily="@font/ggsans_medium"
+            android:layout_marginTop="5dp" />
+    </LinearLayout>
+
+    <!-- Message Indicator -->
     <TextView
-        android:id="@+id/user_email"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="12:10"
+        android:textAlignment="center"
+        android:fontFamily="@font/ggsans_regular"
         android:textSize="12sp"
-        android:textColor="@color/white"
-        android:text="@string/email_secondary"
-        android:textStyle="bold"
-        android:layout_marginTop="5dp"
-        />
+        android:textColor="@color/gray_400"
+        android:paddingStart="10dp"/>
 
 </LinearLayout>

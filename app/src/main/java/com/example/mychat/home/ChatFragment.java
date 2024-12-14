@@ -13,11 +13,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.mychat.R;
 import com.example.mychat.adapters.UserCardAdapter;
 import com.example.mychat.classes.StoredUser;
+import com.example.mychat.classes.UserSingleton;
 import com.example.mychat.constants.Tags;
+import com.example.mychat.databinding.FragmentChatBinding;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -28,16 +33,19 @@ public class ChatFragment extends Fragment {
     private FirebaseFirestore _firestore;
     private List<StoredUser> _storedUsers;
     private UserCardAdapter _adapter;
+    private UserSingleton _userSingleton;
+    private FragmentChatBinding _binding;
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        RecyclerView recyclerViewContainer = view.findViewById(R.id.recycler_view_container);
-        recyclerViewContainer.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerViewContainer.setAdapter(_adapter);
+        _binding.chatsList.setLayoutManager(new LinearLayoutManager(getContext()));
+        _binding.chatsList.setAdapter(_adapter);
 
-        fetchUsers();
+        Log.d(Tags.Debugger.DEBUG_KEY, String.valueOf(_userSingleton.getName()));
+        _binding.welcomeTextView.setText("Welcome back " + _userSingleton.getFirstName());
     }
 
     @Override
@@ -45,6 +53,7 @@ public class ChatFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         _firestore = FirebaseFirestore.getInstance();
+        _userSingleton = UserSingleton.getInstance();
         _storedUsers = new ArrayList<>();
         _adapter = new UserCardAdapter(_storedUsers);
     }
@@ -52,53 +61,9 @@ public class ChatFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_chat, container, false);
+        _binding = FragmentChatBinding.inflate(inflater, container, false);
+        return _binding.getRoot();
     }
 
-
-    protected void fetchUsers() {
-        _firestore.collection(Tags.FirebaseTags.USERS_COLLECTION)
-                .limit(20) // Adjust the limit based on your requirements
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
-                        // Clear the existing list before adding new data
-                        _storedUsers.clear();
-
-                        // Iterate through the documents and add them to the list
-                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments()) {
-                            try {
-                                // Log the document data for debugging
-                                Log.d(Tags.FirebaseTags.FIREBASE_FIRESTORE_TAG, "Document data: " + documentSnapshot.getData());
-
-                                // Deserialize the document snapshot into a StoredUser object
-                                StoredUser storedUser = new StoredUser();
-                                storedUser.setPhoto(documentSnapshot.getString("photo"));
-                                storedUser.setFirst_name(documentSnapshot.getString("first_name"));
-                                storedUser.setSecond_name(documentSnapshot.getString("second_name"));
-                                storedUser.setEmail(documentSnapshot.getString("email"));
-//                                storedUser.setFriends(documentSnapshot.("friends"));
-
-                                if (storedUser != null) {
-                                    _storedUsers.add(storedUser);
-                                } else {
-                                    Log.e(Tags.FirebaseTags.FIREBASE_FIRESTORE_TAG, "Failed to map document to StoredUser");
-                                }
-                            } catch (Exception e) {
-                                // Log any exceptions that happen during the mapping
-                                Log.e(Tags.FirebaseTags.FIREBASE_FIRESTORE_TAG, "Error mapping document to StoredUser", e);
-                            }
-                        }
-
-                        // Notify the adapter that the data has changed
-                        _adapter.notifyDataSetChanged();
-                    } else {
-                        Log.d(Tags.FirebaseTags.FIREBASE_FIRESTORE_TAG, "No users found");
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(Tags.FirebaseTags.FIREBASE_FIRESTORE_TAG, "Error fetching users", e);
-                });
-    }
-
+    protected void fetchByKey(String key){}
 }
