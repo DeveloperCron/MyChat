@@ -8,26 +8,22 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mychat.R;
 
-public class UserCardHolder extends RecyclerView.ViewHolder {
-    private final TextView _userEmail;
+public class ChatHolder extends RecyclerView.ViewHolder {
+    private final TextView _lastMessage;
     private final TextView _userName;
 
-    public UserCardHolder(@NonNull View itemView) {
+    public ChatHolder(@NonNull View itemView) {
         super(itemView);
 
-        _userEmail = itemView.findViewById(R.id.user_email);
+        _lastMessage = itemView.findViewById(R.id.last_message);
         _userName = itemView.findViewById(R.id.user_name);
-    }
-
-    public TextView get_userEmail() {
-        return _userEmail;
     }
 
     public TextView getUsername() {
         return this._userName;
     }
 
-    public TextView getUserEmail() {
-        return this._userEmail;
+    public TextView getLastMessage() {
+        return this._lastMessage;
     }
 }

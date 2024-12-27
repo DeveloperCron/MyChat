@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation("com.google.firebase:firebase-database")
     implementation("io.reactivex.rxjava3:rxjava:3.1.10")
     implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
 

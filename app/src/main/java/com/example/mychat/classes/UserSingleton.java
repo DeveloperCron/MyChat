@@ -16,11 +16,10 @@ public class UserSingleton {
     private String first_name;
     private String second_name;
     private String email;
+    private String uid;
     private List<StoredUser> friends;
 
-    // Private constructor to prevent instantiation from outside
     private UserSingleton() {
-        // Initialize with default values or empty lists
         this.name = "";
         this.first_name = "";
         this.second_name = "";
@@ -88,8 +87,6 @@ public class UserSingleton {
     public void setFriends(List<StoredUser> friends) {
         this.friends = friends;
     }
-
-    // Reset the user instance (useful for logout)
     public void resetUser() {
         this.name = "";
         this.first_name = "";
@@ -97,5 +94,13 @@ public class UserSingleton {
         this.email = "";
         this.photoUrl = "";
         this.friends = Collections.emptyList();
+    }
+
+    public void setUid(String uid){
+        this.uid = uid;
+    }
+
+    public String getUid(){
+        return this.uid;
     }
 }

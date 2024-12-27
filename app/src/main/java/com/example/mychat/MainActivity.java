@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                                 user.setFirstName(documentSnapshot.getString(Tags.USER_FIELDS.FIRST_NAME));
                                 user.setSecondName(documentSnapshot.getString(Tags.USER_FIELDS.SECOND_NAME));
                                 user.setPhotoUrl(documentSnapshot.getString(Tags.USER_FIELDS.PROFILE_PICTURE));
+                                user.setUid(currentUser.getUid());
                                 Intent intent = new Intent(MainActivity.this, HomeActivity.class);
                                 startActivity(intent);
                             },

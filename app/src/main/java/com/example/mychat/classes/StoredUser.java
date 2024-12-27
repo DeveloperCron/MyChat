@@ -8,19 +8,13 @@ import java.util.List;
 
 @Keep
 public class StoredUser {
-
-    // Firestore fields - using snake_case, or you can omit this if field names match in both Firestore and Java
     private String photo;
     private String first_name;
     private String second_name;
     private String email;
-    private List<String> friends; // Assuming 'friends' is a list of emails
+    private List<String> friends;
 
-    // Default constructor (Firestore needs it for deserialization)
     public StoredUser() { }
-
-    // Getter and Setter methods for all fields
-
     public String getPhoto() {
         return photo;
     }

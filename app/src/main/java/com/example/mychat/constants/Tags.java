@@ -13,8 +13,12 @@ public class Tags {
         public static String PASSWORD_TAG = "PASSWORD";
     }
 
-    public static class Debugger {
+    public static class DEBUGGER {
         public static String DEBUG_KEY = "DEBUG";
+    }
+
+    public static class FIREBASE_DATABASE {
+            public static String CHATS_KEY = "chats";
     }
 
     public static class USER_FIELDS {
