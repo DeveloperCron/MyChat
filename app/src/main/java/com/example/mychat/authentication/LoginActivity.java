@@ -22,7 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding _binding;
     private FirebaseAuth _firebaseAuth;
-    private FirebaseFirestore _fireStoreDatabase;
+    private FirebaseFirestore _firestore;
     private SharedPreferences _sharedPreferences;
     private UserSingleton _userSingleton;
 
@@ -33,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(_binding.getRoot());
 
         _firebaseAuth = FirebaseAuth.getInstance();
-        _fireStoreDatabase = FirebaseFirestore.getInstance();
+        _firestore = FirebaseFirestore.getInstance();
         _userSingleton = UserSingleton.getInstance();
     }
 
@@ -60,7 +60,7 @@ public class LoginActivity extends AppCompatActivity {
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d(Tags.FirebaseTags.FIREBASE_AUTH_TAG, "signInWithEmail:success");
+                            Log.d(Tags.FIREBASE_TAGS.FIREBASE_AUTH_TAG, "signInWithEmail:success");
                             // You can navigate to another screen or update UI here
                             FirebaseUser _currentUser = _firebaseAuth.getCurrentUser();
 
@@ -71,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
                             startActivity(new Intent(this, HomeActivity.class));
                         } else {
                             // If sign in fails, display a message to the user
-                            Log.w(Tags.FirebaseTags.FIREBASE_AUTH_TAG, "signInWithEmail:failure", task.getException());
+                            Log.w(Tags.FIREBASE_TAGS.FIREBASE_AUTH_TAG, "signInWithEmail:failure", task.getException());
                             Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -99,18 +99,18 @@ public class LoginActivity extends AppCompatActivity {
         _editor.apply();
     }
     protected void initializeUser(FirebaseUser _currentUser) {
-        DocumentReference userDocRef = _fireStoreDatabase.collection(Tags.FirebaseTags.USERS_COLLECTION).document(_currentUser.getUid());
+        DocumentReference userDocRef = _firestore.collection(Tags.FIREBASE_TAGS.USERS_COLLECTION).document(_currentUser.getUid());
         userDocRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot documentSnapshot = task.getResult();
                 if (documentSnapshot.exists()) {
                     _userSingleton = documentSnapshot.toObject(UserSingleton.class);
-                    Log.d(Tags.FirebaseTags.FIREBASE_FIRESTORE_TAG, "Retrieved document snapshot for " + _currentUser.getUid() + " Successfully");
+                    Log.d(Tags.FIREBASE_TAGS.FIREBASE_FIRESTORE_TAG, "Retrieved document snapshot for " + _currentUser.getUid() + " Successfully");
                 } else {
-                    Log.d(Tags.FirebaseTags.FIREBASE_FIRESTORE_TAG, "Failed to retrieve document");
+                    Log.d(Tags.FIREBASE_TAGS.FIREBASE_FIRESTORE_TAG, "Failed to retrieve document");
                 }
             } else {
-                Log.w(Tags.FirebaseTags.FIREBASE_FIRESTORE_TAG, "Error getting document.", task.getException());}
+                Log.w(Tags.FIREBASE_TAGS.FIREBASE_FIRESTORE_TAG, "Error getting document.", task.getException());}
         });
     }
 }

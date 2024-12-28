@@ -5,16 +5,21 @@ import androidx.annotation.Keep;
 import com.google.firebase.firestore.FieldValue;
 
 import java.util.List;
-
-@Keep
 public class StoredUser {
     private String photo;
     private String first_name;
     private String second_name;
     private String email;
-    private List<String> friends;
+    private String uid;
 
-    public StoredUser() { }
+    public StoredUser(String photo, String first_name, String second_name, String email, String uid) {
+        this.photo = photo;
+        this.first_name = first_name;
+        this.second_name = second_name;
+        this.email = email;
+        this.uid = uid;
+    }
+
     public String getPhoto() {
         return photo;
     }
@@ -47,15 +52,15 @@ public class StoredUser {
         this.email = email;
     }
 
-    public List<String> getFriends() {
-        return friends;
+    public String getUid() {
+        return uid;
     }
 
-    public void setFriends(List<String> friends) {
-        this.friends = friends;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
-    public String getName(){
+    public String getUsername(){
         return this.first_name + " " + this.second_name;
     }
 }

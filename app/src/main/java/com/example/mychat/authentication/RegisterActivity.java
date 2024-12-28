@@ -20,7 +20,7 @@ import java.util.Map;
 public class RegisterActivity extends AppCompatActivity {
     ActivityRegisterBinding _binding;
     private FirebaseAuth _firebaseAuth;
-    private FirebaseFirestore _firebaseFirestore;
+    private FirebaseFirestore _firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +29,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(_binding.getRoot());
 
         _firebaseAuth = FirebaseAuth.getInstance();
-        _firebaseFirestore = FirebaseFirestore.getInstance();
+        _firestore = FirebaseFirestore.getInstance();
     }
 
     @Override
@@ -44,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
                     this, task -> {
                         if (task.isSuccessful()) {
                             // Sign up success, update UI with the signed-in user's information
-                            Log.d(Tags.FirebaseTags.FIREBASE_AUTH_TAG, "createUserWithEmailAndPassword:success");
+                            Log.d(Tags.FIREBASE_TAGS.FIREBASE_AUTH_TAG, "createUserWithEmailAndPassword:success");
                             FirebaseUser _currentUser = _firebaseAuth.getCurrentUser();
 
                             assert _currentUser != null;
@@ -52,7 +52,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                             startActivity(new Intent(this, HomeActivity.class));
                         } else {
-                            Log.w(Tags.FirebaseTags.FIREBASE_AUTH_TAG, "signInWithEmail:failure", task.getException());
+                            Log.w(Tags.FIREBASE_TAGS.FIREBASE_AUTH_TAG, "signInWithEmail:failure", task.getException());
                         }
                     }
             );
@@ -68,11 +68,11 @@ public class RegisterActivity extends AppCompatActivity {
         _user.put("name", _firebaseUser.getEmail());
         _user.put("photo_url", String.valueOf(_firebaseUser.getPhotoUrl()));
 
-        _firebaseFirestore.collection(Tags.FirebaseTags.USERS_COLLECTION)
+        _firestore.collection(Tags.FIREBASE_TAGS.USERS_COLLECTION)
                 .document(_userUID)  // Use UID directly as the document ID
                 .set(_user)
-                .addOnSuccessListener(unused -> Log.d(Tags.FirebaseTags.FIREBASE_FIRESTORE_TAG, "initializeUser:success"))
-                .addOnFailureListener(e -> Log.w(Tags.FirebaseTags.FIREBASE_FIRESTORE_TAG, "initializeUser:failure", e));
+                .addOnSuccessListener(unused -> Log.d(Tags.FIREBASE_TAGS.FIREBASE_FIRESTORE_TAG, "initializeUser:success"))
+                .addOnFailureListener(e -> Log.w(Tags.FIREBASE_TAGS.FIREBASE_FIRESTORE_TAG, "initializeUser:failure", e));
     }
 
 }

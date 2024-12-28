@@ -1,6 +1,7 @@
 package com.example.mychat.home;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import com.example.mychat.adapters.ChatAdapter;
 import com.example.mychat.classes.Chat;
 import com.example.mychat.classes.UserSingleton;
 import com.example.mychat.constants.Tags;
+import com.google.android.material.search.SearchBar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -40,6 +42,7 @@ public class ChatFragment extends Fragment {
     private FirebaseDatabase _database;
     private RecyclerView _chatsList; // Use RecyclerView directly
     private TextView _welcomeTextView; // Replace with the actual welcome TextView
+    private SearchBar _searchBar;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,6 +65,7 @@ public class ChatFragment extends Fragment {
         // Initialize views manually
         _chatsList = rootView.findViewById(R.id.chatsList);
         _welcomeTextView = rootView.findViewById(R.id.welcomeTextView);
+        _searchBar = rootView.findViewById(R.id.searchBar);
 
         // Set RecyclerView layout manager and adapter
         _chatsList.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -69,6 +73,14 @@ public class ChatFragment extends Fragment {
 
         // Set the welcome message
         _welcomeTextView.setText("Welcome back " + _userSingleton.getFirstName());
+        _searchBar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), SearchActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
         // Set up Firebase listener
         setupFirebaseListener();
@@ -77,7 +89,7 @@ public class ChatFragment extends Fragment {
     }
 
     private void setupFirebaseListener() {
-        DatabaseReference _ref = _database.getReference(Tags.FIREBASE_DATABASE.CHATS_KEY);
+        DatabaseReference _ref = _database.getReference(Tags.FIREBASE_TAGS.CHATS_KEY);
         _ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -121,7 +133,7 @@ public class ChatFragment extends Fragment {
     }
 
     protected void fetchSender(String uid, OnSenderFetchedListener listener) {
-        _firestore.collection(Tags.FirebaseTags.USERS_COLLECTION)
+        _firestore.collection(Tags.FIREBASE_TAGS.USERS_COLLECTION)
                 .document(uid)
                 .get()
                 .addOnCompleteListener(task -> {

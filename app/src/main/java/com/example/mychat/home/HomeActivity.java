@@ -14,10 +14,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class HomeActivity extends AppCompatActivity {
     ActivityHomeBinding _binding;
     private ChatFragment _chatFragment;
-    private FirebaseAuth _firebaseAuth;
-    private FirebaseFirestore _firestoreDatabase;
+//    private FirebaseAuth _firebaseAuth;
+    private FirebaseFirestore _firestore;
     private FragmentManager _fragmentManager;
-    private UserSingleton _userSingleton;
+//    private UserSingleton _userSingleton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,9 +28,9 @@ public class HomeActivity extends AppCompatActivity {
         _chatFragment = new ChatFragment();
 
         _fragmentManager = getSupportFragmentManager();
-        _firebaseAuth = FirebaseAuth.getInstance();
-        _firestoreDatabase = FirebaseFirestore.getInstance();
-        _userSingleton = UserSingleton.getInstance();
+//        _firebaseAuth = FirebaseAuth.getInstance();
+        _firestore = FirebaseFirestore.getInstance();
+//        _userSingleton = UserSingleton.getInstance();
     }
 
     @Override

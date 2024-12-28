@@ -12,6 +12,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyChat"
         tools:targetApi="31">
+        <service
+            android:name=".services.FriendsService"
+            android:enabled="true"
+            android:exported="true"/>
+        <service
+            android:name=".services.ChatService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity
+            android:name=".home.SearchActivity"
+            android:exported="false" />
         <activity
             android:name=".chatRoom.ChatRoomActivity"
             android:exported="false" />

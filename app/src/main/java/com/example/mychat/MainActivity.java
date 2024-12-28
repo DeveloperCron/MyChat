@@ -16,12 +16,16 @@ import com.example.mychat.authentication.LoginActivity;
 import com.example.mychat.classes.UserSingleton;
 import com.example.mychat.constants.Tags;
 import com.example.mychat.home.HomeActivity;
+import com.example.mychat.services.FriendsService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Scheduler;
@@ -34,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
     private UserSingleton user;
-    private CompositeDisposable _compositeDisposable;
+    private CompositeDisposable compositeDisposable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +49,15 @@ public class MainActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
         user = UserSingleton.getInstance();
-        _compositeDisposable = new CompositeDisposable();
+        compositeDisposable = new CompositeDisposable();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
+        Intent friendsServiceIntent = new Intent(this, FriendsService.class);
+
 
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         if (currentUser != null) {
@@ -64,22 +71,27 @@ public class MainActivity extends AppCompatActivity {
                                 user.setSecondName(documentSnapshot.getString(Tags.USER_FIELDS.SECOND_NAME));
                                 user.setPhotoUrl(documentSnapshot.getString(Tags.USER_FIELDS.PROFILE_PICTURE));
                                 user.setUid(currentUser.getUid());
+
+                                ArrayList<String> friends = (ArrayList<String>) documentSnapshot.get(Tags.USER_FIELDS.FRIENDS);
+                                friendsServiceIntent.putStringArrayListExtra("friendsList", (ArrayList<String>) friends);
                                 Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+
+                                startService(friendsServiceIntent);
                                 startActivity(intent);
                             },
                             throwable -> {
-                                Log.d(Tags.FirebaseTags.FIREBASE_FIRESTORE_TAG, "Failed to initialize user.");
+                                Log.d(Tags.FIREBASE_TAGS.FIREBASE_FIRESTORE_TAG, "Failed to initialize user.");
                             }
                     );
 
-            _compositeDisposable.add(disposable);
+            compositeDisposable.add(disposable);
         } else {
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
         }
     }
 
     protected Single<DocumentSnapshot> initializeUser(FirebaseUser currentUser) {
-        DocumentReference userDocRef = firebaseFirestore.collection(Tags.FirebaseTags.USERS_COLLECTION).document(currentUser.getUid());
+        DocumentReference userDocRef = firebaseFirestore.collection(Tags.FIREBASE_TAGS.USERS_COLLECTION).document(currentUser.getUid());
         return Single.create(emitter -> {
             userDocRef
                     .get()
@@ -87,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             DocumentSnapshot documentSnapshot = task.getResult();
                             if (documentSnapshot.exists()) {
-                                Log.d(Tags.FirebaseTags.FIREBASE_FIRESTORE_TAG, "Retrieved document snapshot for " + currentUser.getUid() + " Successfully");
+                                Log.d(Tags.FIREBASE_TAGS.FIREBASE_FIRESTORE_TAG, "Retrieved document snapshot for " + currentUser.getUid() + " Successfully");
                                 emitter.onSuccess(documentSnapshot);
                             }
                             }
@@ -99,6 +111,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        _compositeDisposable.clear();
+        compositeDisposable.clear();
     }
 }
