@@ -42,51 +42,51 @@ public class UserSingleton {
         return name;
     }
 
-    public String getFirstName() {
-        return first_name;
-    }
-
-    public String getSecondName() {
-        return second_name;
-    }
-
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPhotoUrl() {
-        return photoUrl;
-    }
-
-    public List<StoredUser> getFriends() {
-        return friends == null ? Collections.emptyList() : friends;
-    }
-
     // Setters (to modify user information)
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getFirstName() {
+        return first_name;
     }
 
     public void setFirstName(String first_name) {
         this.first_name = first_name;
     }
 
+    public String getSecondName() {
+        return second_name;
+    }
+
     public void setSecondName(String second_name) {
         this.second_name = second_name;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
     }
 
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
+    }
+
+    public List<StoredUser> getFriends() {
+        return friends == null ? Collections.emptyList() : friends;
     }
 
     public void setFriends(List<StoredUser> friends) {
         this.friends = friends;
     }
+
     public void resetUser() {
         this.name = "";
         this.first_name = "";
@@ -96,11 +96,11 @@ public class UserSingleton {
         this.friends = Collections.emptyList();
     }
 
-    public void setUid(String uid){
-        this.uid = uid;
+    public String getUid() {
+        return this.uid;
     }
 
-    public String getUid(){
-        return this.uid;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

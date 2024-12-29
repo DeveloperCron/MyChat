@@ -43,8 +43,6 @@ public class RegisterActivity extends AppCompatActivity {
             _firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(
                     this, task -> {
                         if (task.isSuccessful()) {
-                            // Sign up success, update UI with the signed-in user's information
-                            Log.d(Tags.FIREBASE_TAGS.FIREBASE_AUTH_TAG, "createUserWithEmailAndPassword:success");
                             FirebaseUser _currentUser = _firebaseAuth.getCurrentUser();
 
                             assert _currentUser != null;
@@ -52,7 +50,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                             startActivity(new Intent(this, HomeActivity.class));
                         } else {
-                            Log.w(Tags.FIREBASE_TAGS.FIREBASE_AUTH_TAG, "signInWithEmail:failure", task.getException());
+                            Log.w(Tags.FirebaseErrors.WRONG_PASSWORD, "signInWithEmail:failure, maybe user entered wrong credentials", task.getException());
                         }
                     }
             );
@@ -68,11 +66,11 @@ public class RegisterActivity extends AppCompatActivity {
         _user.put("name", _firebaseUser.getEmail());
         _user.put("photo_url", String.valueOf(_firebaseUser.getPhotoUrl()));
 
-        _firestore.collection(Tags.FIREBASE_TAGS.USERS_COLLECTION)
+        _firestore.collection(Tags.Firebase.USERS_COLLECTION)
                 .document(_userUID)  // Use UID directly as the document ID
                 .set(_user)
-                .addOnSuccessListener(unused -> Log.d(Tags.FIREBASE_TAGS.FIREBASE_FIRESTORE_TAG, "initializeUser:success"))
-                .addOnFailureListener(e -> Log.w(Tags.FIREBASE_TAGS.FIREBASE_FIRESTORE_TAG, "initializeUser:failure", e));
+                .addOnSuccessListener(unused -> Log.d(Tags.FirebaseErrors.UNAVAILABLE, "initializeUser:success"))
+                .addOnFailureListener(e -> Log.w(Tags.FirebaseErrors.UNAVAILABLE, "initializeUser:failure", e));
     }
 
 }

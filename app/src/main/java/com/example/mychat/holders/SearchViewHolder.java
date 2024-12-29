@@ -19,11 +19,11 @@ public class SearchViewHolder extends RecyclerView.ViewHolder {
         _useremail = itemView.findViewById(R.id.user_email);
     }
 
-    public TextView getUsername(){
+    public TextView getUsername() {
         return this._username;
     }
 
-    public TextView getEmail(){
+    public TextView getEmail() {
         return this._useremail;
     }
 }

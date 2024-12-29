@@ -2,20 +2,14 @@ package com.example.mychat.services;
 
 import android.app.Service;
 import android.content.Intent;
-import android.nfc.Tag;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import com.example.mychat.classes.StoredUser;
 import com.example.mychat.constants.Tags;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +40,7 @@ public class FriendsService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         List<String> friendsList = intent.getStringArrayListExtra("friendsList");
-        Log.d(Tags.DEBUGGER.DEBUG_KEY, String.valueOf(friendsList.size()));
+        Log.d(Tags.Debugger.KEY, String.valueOf(friendsList.size()));
         if (friendsList != null && !friendsList.isEmpty()) {
             fetchFriends(friendsList);
         }
@@ -55,16 +49,16 @@ public class FriendsService extends Service {
 
     private void fetchFriends(List<String> friendsList) {
         for (String friendId : friendsList) {
-            _firestore.collection(Tags.FIREBASE_TAGS.USERS_COLLECTION).document(friendId)
+            _firestore.collection(Tags.Firebase.USERS_COLLECTION).document(friendId)
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             DocumentSnapshot documentSnapshot = task.getResult();
                             if (documentSnapshot.exists()) {
-                                String first_name = documentSnapshot.getString(Tags.USER_FIELDS.FIRST_NAME);
-                                String second_name = documentSnapshot.getString(Tags.USER_FIELDS.SECOND_NAME);
-                                String email = documentSnapshot.getString(Tags.USER_FIELDS.EMAIL);
-                                String photo = documentSnapshot.getString(Tags.USER_FIELDS.PROFILE_PICTURE);
+                                String first_name = documentSnapshot.getString(Tags.UserFields.FIRST_NAME);
+                                String second_name = documentSnapshot.getString(Tags.UserFields.SECOND_NAME);
+                                String email = documentSnapshot.getString(Tags.UserFields.EMAIL);
+                                String photo = documentSnapshot.getString(Tags.UserFields.PROFILE_PICTURE);
 
                                 StoredUser friend = new StoredUser(photo, first_name, second_name, email, friendId);
                                 _friends.add(friend);

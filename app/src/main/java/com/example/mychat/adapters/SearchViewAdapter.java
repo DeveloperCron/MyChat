@@ -16,6 +16,10 @@ import java.util.List;
 public class SearchViewAdapter extends RecyclerView.Adapter<SearchViewHolder> {
     private final List<StoredUser> _searchItems;
 
+    public SearchViewAdapter(List<StoredUser> _searchItems) {
+        this._searchItems = _searchItems;
+    }
+
     @NonNull
     @Override
     public SearchViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -27,10 +31,6 @@ public class SearchViewAdapter extends RecyclerView.Adapter<SearchViewHolder> {
     public void onBindViewHolder(@NonNull SearchViewHolder holder, int position) {
         holder.getUsername().setText(_searchItems.get(position).getUsername());
         holder.getEmail().setText(_searchItems.get(position).getEmail());
-    }
-
-    public SearchViewAdapter(List<StoredUser> _searchItems){
-        this._searchItems = _searchItems;
     }
 
     @Override

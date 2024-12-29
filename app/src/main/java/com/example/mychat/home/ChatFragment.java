@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,14 +26,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ChatFragment extends Fragment {
     private FirebaseFirestore _firestore;
@@ -40,9 +40,6 @@ public class ChatFragment extends Fragment {
     private ChatAdapter _adapter;
     private UserSingleton _userSingleton;
     private FirebaseDatabase _database;
-    private RecyclerView _chatsList; // Use RecyclerView directly
-    private TextView _welcomeTextView; // Replace with the actual welcome TextView
-    private SearchBar _searchBar;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,9 +60,10 @@ public class ChatFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_chat, container, false);
 
         // Initialize views manually
-        _chatsList = rootView.findViewById(R.id.chatsList);
-        _welcomeTextView = rootView.findViewById(R.id.welcomeTextView);
-        _searchBar = rootView.findViewById(R.id.searchBar);
+        RecyclerView _chatsList = rootView.findViewById(R.id.chatsList);
+        TextView _welcomeTextView = rootView.findViewById(R.id.welcomeTextView);
+        SearchBar _searchBar = rootView.findViewById(R.id.searchBar);
+        ProgressBar _progressBar = rootView.findViewById(R.id.progress);
 
         // Set RecyclerView layout manager and adapter
         _chatsList.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -73,23 +71,21 @@ public class ChatFragment extends Fragment {
 
         // Set the welcome message
         _welcomeTextView.setText("Welcome back " + _userSingleton.getFirstName());
-        _searchBar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), SearchActivity.class);
-                startActivity(intent);
-            }
+        _searchBar.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), SearchActivity.class);
+            startActivity(intent);
         });
 
 
         // Set up Firebase listener
         setupFirebaseListener();
+        _progressBar.setVisibility(View.GONE);
 
         return rootView;
     }
 
     private void setupFirebaseListener() {
-        DatabaseReference _ref = _database.getReference(Tags.FIREBASE_TAGS.CHATS_KEY);
+        DatabaseReference _ref = _database.getReference(Tags.Firebase.CHATS);
         _ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -98,54 +94,57 @@ public class ChatFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.d(Tags.DEBUGGER.DEBUG_KEY, String.valueOf(error));
+                Log.d(Tags.Debugger.KEY, String.valueOf(error));
             }
         });
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    protected void insertFromDatabase(DataSnapshot _dataSnapshot) {
-        for (DataSnapshot _snapshot : _dataSnapshot.getChildren()) {
-            final AtomicReference<DataSnapshot>[] _lastMessage = new AtomicReference[]{new AtomicReference<>()};
-            final long[] latestTimestamp = {0};
-
-            String chatKey = _snapshot.child("chat_key").getValue(String.class);
-            String senderUid = getSenderUidFromChatKey(chatKey);
-            if (chatKey.contains(_userSingleton.getUid())) {
+    protected void insertFromDatabase(DataSnapshot dataSnapshot) {
+        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+            String chatKey = snapshot.child(Tags.Firebase.CHAT_KEY).getValue(String.class);
+            if (chatKey != null && chatKey.contains(_userSingleton.getUid())) {
+                String senderUid = getSenderUidFromChatKey(chatKey);
                 fetchSender(senderUid, senderName -> {
-                    DataSnapshot documentSnapshot = _snapshot.child("messages");
-                    for (DataSnapshot messageSnapshot : documentSnapshot.getChildren()) {
-                        Long timestamp = messageSnapshot.child("timestamp").getValue(Long.class);
-                        if (timestamp != null && timestamp > latestTimestamp[0]) {
-                            latestTimestamp[0] = timestamp;
-                            _lastMessage[0].set(messageSnapshot);
+                    Query latestMessageQuery = snapshot.child(Tags.Firebase.MESSAGES).getRef().orderByChild(Tags.Firebase.TIMESTAMP).limitToLast(1);
+                    latestMessageQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot messageSnapshot : dataSnapshot.getChildren()) {
+                                String messageText = messageSnapshot.child("text").getValue(String.class);
+                                if (messageText != null) {
+                                    Chat chatInstance = new Chat(messageText, senderName);
+                                    Log.d(Tags.Debugger.KEY, chatInstance.toString());
+                                    _storedChats.add(chatInstance);
+                                    _adapter.notifyDataSetChanged();
+                                }
+                            }
                         }
-                    }
-                    if (_lastMessage[0].get() != null) {
-                        Chat chatInstance = new Chat(_lastMessage[0].get().child("text").getValue(String.class), senderName);
-                        Log.d(Tags.DEBUGGER.DEBUG_KEY, chatInstance.toString());
-                        _storedChats.add(chatInstance);
-                        _adapter.notifyDataSetChanged();
-                    }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Log.e(Tags.Debugger.KEY, "Failed to fetch latest message: " + databaseError.getMessage());
+                        }
+                    });
                 });
             }
         }
     }
 
     protected void fetchSender(String uid, OnSenderFetchedListener listener) {
-        _firestore.collection(Tags.FIREBASE_TAGS.USERS_COLLECTION)
+        _firestore.collection(Tags.Firebase.USERS_COLLECTION)
                 .document(uid)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult().exists()) {
                         DocumentSnapshot documentSnapshot = task.getResult();
-                        String firstName = documentSnapshot.getString(Tags.USER_FIELDS.FIRST_NAME);
-                        String secondName = documentSnapshot.getString(Tags.USER_FIELDS.SECOND_NAME);
+                        String firstName = documentSnapshot.getString(Tags.UserFields.FIRST_NAME);
+                        String secondName = documentSnapshot.getString(Tags.UserFields.SECOND_NAME);
                         String senderName = firstName + " " + secondName;
 
                         listener.onSenderFetched(senderName); // Callback with sender name
                     } else {
-                        Log.e("SenderName", "User not found");
+                        Log.e(Tags.FirebaseErrors.UNAVAILABLE, "User not found");
                     }
                 })
                 .addOnFailureListener(e -> Log.e("SenderName", "Error: " + e.getMessage()));

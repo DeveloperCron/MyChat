@@ -1,16 +1,15 @@
 package com.example.mychat;
 
-import android.annotation.SuppressLint;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.mychat.authentication.LoginActivity;
 import com.example.mychat.classes.UserSingleton;
@@ -22,13 +21,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -56,9 +52,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        ImageView logoView = findViewById(R.id.logoView);
+
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(logoView, "scaleX", 1f, 1.1f);
+        scaleX.setDuration(500);
+        scaleX.setRepeatMode(ValueAnimator.REVERSE);
+        scaleX.setRepeatCount(ValueAnimator.INFINITE);
+
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(logoView, "scaleY", 1f, 1.1f);
+        scaleY.setDuration(500);
+        scaleY.setRepeatMode(ValueAnimator.REVERSE);
+        scaleY.setRepeatCount(ValueAnimator.INFINITE);
+
+        // AnimatorSet to play both animations together
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(scaleX, scaleY);
+        animatorSet.start();
+
         Intent friendsServiceIntent = new Intent(this, FriendsService.class);
-
-
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         if (currentUser != null) {
             Disposable disposable = initializeUser(currentUser)
@@ -66,13 +77,12 @@ public class MainActivity extends AppCompatActivity {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             documentSnapshot -> {
-                                user.setEmail(documentSnapshot.getString(Tags.USER_FIELDS.EMAIL));
-                                user.setFirstName(documentSnapshot.getString(Tags.USER_FIELDS.FIRST_NAME));
-                                user.setSecondName(documentSnapshot.getString(Tags.USER_FIELDS.SECOND_NAME));
-                                user.setPhotoUrl(documentSnapshot.getString(Tags.USER_FIELDS.PROFILE_PICTURE));
+                                user.setEmail(documentSnapshot.getString(Tags.UserFields.EMAIL));
+                                user.setFirstName(documentSnapshot.getString(Tags.UserFields.FIRST_NAME));
+                                user.setSecondName(documentSnapshot.getString(Tags.UserFields.PROFILE_PICTURE));
                                 user.setUid(currentUser.getUid());
 
-                                ArrayList<String> friends = (ArrayList<String>) documentSnapshot.get(Tags.USER_FIELDS.FRIENDS);
+                                ArrayList<String> friends = (ArrayList<String>) documentSnapshot.get(Tags.UserFields.FRIENDS);
                                 friendsServiceIntent.putStringArrayListExtra("friendsList", (ArrayList<String>) friends);
                                 Intent intent = new Intent(MainActivity.this, HomeActivity.class);
 
@@ -80,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(intent);
                             },
                             throwable -> {
-                                Log.d(Tags.FIREBASE_TAGS.FIREBASE_FIRESTORE_TAG, "Failed to initialize user.");
+                                Log.d(Tags.FirebaseErrors.UNAVAILABLE, "Failed to initialize user.");
                             }
                     );
 
@@ -91,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected Single<DocumentSnapshot> initializeUser(FirebaseUser currentUser) {
-        DocumentReference userDocRef = firebaseFirestore.collection(Tags.FIREBASE_TAGS.USERS_COLLECTION).document(currentUser.getUid());
+        DocumentReference userDocRef = firebaseFirestore.collection(Tags.Firebase.USERS_COLLECTION).document(currentUser.getUid());
         return Single.create(emitter -> {
             userDocRef
                     .get()
@@ -99,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             DocumentSnapshot documentSnapshot = task.getResult();
                             if (documentSnapshot.exists()) {
-                                Log.d(Tags.FIREBASE_TAGS.FIREBASE_FIRESTORE_TAG, "Retrieved document snapshot for " + currentUser.getUid() + " Successfully");
+                                Log.d(Tags.FirebaseErrors.DOCUMENT_NOT_FOUND, "Retrieved document snapshot for " + currentUser.getUid() + " Successfully");
                                 emitter.onSuccess(documentSnapshot);
                             }
                             }

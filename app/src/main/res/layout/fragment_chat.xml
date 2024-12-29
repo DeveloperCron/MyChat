@@ -7,7 +7,6 @@
     android:background="@color/black"
     tools:context=".home.ChatFragment">
 
-
     <LinearLayout
         android:id="@+id/linearLayout3"
         android:layout_width="match_parent"
@@ -60,6 +59,7 @@
         app:titleTextColor="@color/black" />
 
     <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/materialDivider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
@@ -91,7 +91,21 @@
             app:layout_constraintTop_toBottomOf="@+id/textView3"
             tools:itemCount="4"
             tools:listitem="@layout/chat_card" />
-
-
     </androidx.core.widget.NestedScrollView>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="32dp"
+        android:backgroundTint="@color/blue"
+        android:indeterminateBehavior="repeat"
+        android:indeterminateTint="@color/blue"
+        android:progressTint="@color/blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/materialDivider"
+        app:layout_constraintVertical_bias="0.42000002" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

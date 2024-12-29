@@ -1,10 +1,5 @@
 package com.example.mychat.classes;
 
-import androidx.annotation.Keep;
-
-import com.google.firebase.firestore.FieldValue;
-
-import java.util.List;
 public class StoredUser {
     private String photo;
     private String first_name;
@@ -60,7 +55,7 @@ public class StoredUser {
         this.uid = uid;
     }
 
-    public String getUsername(){
+    public String getUsername() {
         return this.first_name + " " + this.second_name;
     }
 }

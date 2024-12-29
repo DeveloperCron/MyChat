@@ -4,11 +4,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -18,7 +16,6 @@ import com.example.mychat.classes.StoredUser;
 import com.example.mychat.constants.Tags;
 import com.example.mychat.databinding.ActivitySearchBinding;
 import com.example.mychat.services.FriendsService;
-
 
 import java.util.List;
 
@@ -30,9 +27,9 @@ public class SearchActivity extends AppCompatActivity {
     ActivitySearchBinding _binding;
     private FriendsService _friendsService;
     private boolean isBound = false;
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
-    private ServiceConnection _serviceConnection = new ServiceConnection() {
+    private final ServiceConnection _serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             FriendsService.FriendsBinder binder = (FriendsService.FriendsBinder) service;
@@ -44,7 +41,7 @@ public class SearchActivity extends AppCompatActivity {
                     .subscribeOn(Schedulers.io())
                     .subscribe(friends -> {
                         initializeActivity(friends);
-                        Log.d(Tags.DEBUGGER.DEBUG_KEY, "Friends list received: " + friends.size());
+                        Log.d(Tags.Debugger.KEY, "Friends list received: " + friends.size());
                     }));
         }
 
@@ -63,7 +60,7 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(_binding.getRoot());
     }
 
-    protected void initializeActivity(List<StoredUser> _friendsList){
+    protected void initializeActivity(List<StoredUser> _friendsList) {
         SearchViewAdapter searchViewAdapter = new SearchViewAdapter(_friendsList);
         _binding.recycler.setLayoutManager(new LinearLayoutManager(this));
         _binding.recycler.setAdapter(searchViewAdapter);

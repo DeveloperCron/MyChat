@@ -6,15 +6,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.mychat.R;
-import com.example.mychat.classes.UserSingleton;
 import com.example.mychat.databinding.ActivityHomeBinding;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class HomeActivity extends AppCompatActivity {
     ActivityHomeBinding _binding;
     private ChatFragment _chatFragment;
-//    private FirebaseAuth _firebaseAuth;
+    //    private FirebaseAuth _firebaseAuth;
     private FirebaseFirestore _firestore;
     private FragmentManager _fragmentManager;
 //    private UserSingleton _userSingleton;
@@ -45,10 +43,10 @@ public class HomeActivity extends AppCompatActivity {
         _binding.bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.chatItem) {
-               _fragmentManager.beginTransaction()
-                       .replace(_binding.fragmentContainerView.getId(), _chatFragment, null)
-                       .addToBackStack(null)
-                       .commit();
+                _fragmentManager.beginTransaction()
+                        .replace(_binding.fragmentContainerView.getId(), _chatFragment, null)
+                        .addToBackStack(null)
+                        .commit();
             }
 
             return true;
