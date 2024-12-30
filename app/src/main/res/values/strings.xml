@@ -12,4 +12,5 @@
     <string name="find_your_next_chat">Find your next chat..</string>
     <string name="username">USERNAME</string>
     <string name="email_secondary">EMAIL</string>
+    <string name="send">Send</string>
 </resources>

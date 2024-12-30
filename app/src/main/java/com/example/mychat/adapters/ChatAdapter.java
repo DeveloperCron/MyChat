@@ -8,15 +8,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mychat.R;
-import com.example.mychat.classes.Chat;
+import com.example.mychat.classes.ChatUser;
 import com.example.mychat.holders.ChatHolder;
 
 import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatHolder> {
-    private final List<Chat> _storedChats;
-
-    public ChatAdapter(List<Chat> _userCardsList) {
+    private final List<ChatUser> _storedChats;
+    public ChatAdapter(List<ChatUser> _userCardsList) {
         this._storedChats = _userCardsList;
     }
 
@@ -31,7 +30,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatHolder> {
     @Override
     public void onBindViewHolder(@NonNull ChatHolder holder, int position) {
         holder.getLastMessage().setText(_storedChats.get(position).getLastMessage());
-        holder.getUsername().setText(_storedChats.get(position).getSender());
+        holder.getUsername().setText(_storedChats.get(position).getUsername());
     }
 
     @Override

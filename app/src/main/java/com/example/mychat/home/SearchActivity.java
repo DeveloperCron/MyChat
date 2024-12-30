@@ -7,12 +7,17 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mychat.adapters.SearchViewAdapter;
-import com.example.mychat.classes.StoredUser;
+import com.example.mychat.classes.ChatUser;
 import com.example.mychat.constants.Tags;
 import com.example.mychat.databinding.ActivitySearchBinding;
 import com.example.mychat.services.FriendsService;
@@ -60,12 +65,43 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(_binding.getRoot());
     }
 
-    protected void initializeActivity(List<StoredUser> _friendsList) {
+    protected void initializeActivity(List<ChatUser> _friendsList) {
         SearchViewAdapter searchViewAdapter = new SearchViewAdapter(_friendsList);
         _binding.recycler.setLayoutManager(new LinearLayoutManager(this));
         _binding.recycler.setAdapter(searchViewAdapter);
 
         _binding.backButton.setOnClickListener(v -> finish());
+        _binding.recycler.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            GestureDetector gestureDetector = new GestureDetector(_binding.recycler.getContext(), new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    return true;
+                }
+            });
+
+            @Override
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                View child = rv.findChildViewUnder(e.getX(), e.getY());
+                if (child != null && gestureDetector.onTouchEvent(e)) {
+                    int position = rv.getChildAdapterPosition(child);
+                    // Handle item click here
+                    ChatUser chatUser = _friendsList.get(position);
+                    Log.d(Tags.Debugger.KEY, "Item clicked at position: " + chatUser.getUsername());
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                // Optional: Handle other touch events if needed
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+                // Optional: Handle disallow intercept if needed
+            }
+        });
     }
 
     @Override

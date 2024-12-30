@@ -6,7 +6,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.example.mychat.classes.StoredUser;
+import com.example.mychat.classes.ChatUser;
 import com.example.mychat.constants.Tags;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -19,8 +19,8 @@ import io.reactivex.rxjava3.subjects.BehaviorSubject;
 public class FriendsService extends Service {
     private final IBinder binder = new FriendsBinder();
     private FirebaseFirestore _firestore;
-    private List<StoredUser> _friends;
-    private BehaviorSubject<List<StoredUser>> friendsSubject;
+    private List<ChatUser> _friends;
+    private BehaviorSubject<List<ChatUser>> friendsSubject;
 
 
     public class FriendsBinder extends Binder {
@@ -60,7 +60,7 @@ public class FriendsService extends Service {
                                 String email = documentSnapshot.getString(Tags.UserFields.EMAIL);
                                 String photo = documentSnapshot.getString(Tags.UserFields.PROFILE_PICTURE);
 
-                                StoredUser friend = new StoredUser(photo, first_name, second_name, email, friendId);
+                                ChatUser friend = new ChatUser(photo, first_name, second_name, email, friendId);
                                 _friends.add(friend);
                             }
                         }
@@ -71,7 +71,7 @@ public class FriendsService extends Service {
         friendsSubject.onNext(_friends);
     }
 
-    public BehaviorSubject<List<StoredUser>> getFriendsObservable() {
+    public BehaviorSubject<List<ChatUser>> getFriendsObservable() {
         return friendsSubject;  // Allow subscribers to observe changes
     }
 

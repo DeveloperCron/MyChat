@@ -8,15 +8,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mychat.R;
-import com.example.mychat.classes.StoredUser;
+import com.example.mychat.classes.ChatUser;
 import com.example.mychat.holders.SearchViewHolder;
 
 import java.util.List;
 
 public class SearchViewAdapter extends RecyclerView.Adapter<SearchViewHolder> {
-    private final List<StoredUser> _searchItems;
+    private final List<ChatUser> _searchItems;
 
-    public SearchViewAdapter(List<StoredUser> _searchItems) {
+    public SearchViewAdapter(List<ChatUser> _searchItems) {
         this._searchItems = _searchItems;
     }
 

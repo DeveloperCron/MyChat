@@ -13,6 +13,7 @@ import com.example.mychat.classes.UserSingleton;
 import com.example.mychat.constants.Tags;
 import com.example.mychat.databinding.ActivityLoginBinding;
 import com.example.mychat.home.HomeActivity;
+import com.example.mychat.services.FriendsService;
 import com.example.mychat.utils.GetTextUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -20,12 +21,15 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+
 public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding _binding;
     private FirebaseAuth _firebaseAuth;
     private FirebaseFirestore _firestore;
     private SharedPreferences _sharedPreferences;
     private UserSingleton _userSingleton;
+    private Intent _friendsServiceIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +46,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        _friendsServiceIntent = new Intent(this, FriendsService.class);
 
         // Getting data from sharedPreferences
         String sharedEmail = getFromShared(Tags.SharedPreferences.EMAIL);
@@ -66,6 +71,7 @@ public class LoginActivity extends AppCompatActivity {
                             initializeUser(_currentUser);
 
                             insertInShared(email, password);
+                            startService(_friendsServiceIntent);
                             startActivity(new Intent(this, HomeActivity.class));
                         } else {
                             // If sign in fails, display a message to the user
@@ -103,6 +109,8 @@ public class LoginActivity extends AppCompatActivity {
                 DocumentSnapshot documentSnapshot = task.getResult();
                 if (documentSnapshot.exists()) {
                     _userSingleton = documentSnapshot.toObject(UserSingleton.class);
+                    ArrayList<String> _friends = (ArrayList<String>) documentSnapshot.get(Tags.UserFields.FRIENDS);
+                    _friendsServiceIntent.putStringArrayListExtra("friendsList", (ArrayList<String>) _friends );
                 } else {
                     Log.d(Tags.FirebaseErrors.DOCUMENT_NOT_FOUND, "Failed to retrieve document");
                 }

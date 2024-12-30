@@ -17,7 +17,7 @@ public class UserSingleton {
     private String second_name;
     private String email;
     private String uid;
-    private List<StoredUser> friends;
+    private List<ChatUser> friends;
 
     private UserSingleton() {
         this.name = "";
@@ -79,11 +79,11 @@ public class UserSingleton {
         this.photoUrl = photoUrl;
     }
 
-    public List<StoredUser> getFriends() {
+    public List<ChatUser> getFriends() {
         return friends == null ? Collections.emptyList() : friends;
     }
 
-    public void setFriends(List<StoredUser> friends) {
+    public void setFriends(List<ChatUser> friends) {
         this.friends = friends;
     }
 

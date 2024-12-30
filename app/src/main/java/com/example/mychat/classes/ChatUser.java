@@ -1,13 +1,14 @@
 package com.example.mychat.classes;
 
-public class StoredUser {
+public class ChatUser {
     private String photo;
     private String first_name;
     private String second_name;
     private String email;
     private String uid;
+    private String last_message;
 
-    public StoredUser(String photo, String first_name, String second_name, String email, String uid) {
+    public ChatUser(String photo, String first_name, String second_name, String email, String uid) {
         this.photo = photo;
         this.first_name = first_name;
         this.second_name = second_name;
@@ -57,5 +58,13 @@ public class StoredUser {
 
     public String getUsername() {
         return this.first_name + " " + this.second_name;
+    }
+
+    public String getLastMessage() {
+        return this.last_message;
+    }
+
+    public void setLastMessage(String last_message) {
+        this.last_message = last_message;
     }
 }
