@@ -20,11 +20,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mychat.R;
 import com.example.mychat.adapters.ChatAdapter;
+import com.example.mychat.chatRoom.ChatRoomActivity;
 import com.example.mychat.classes.ChatUser;
 import com.example.mychat.classes.UserSingleton;
 import com.example.mychat.constants.Tags;
 import com.example.mychat.utils.ChatUtils;
 import com.google.android.material.search.SearchBar;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,49 +40,48 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatFragment extends Fragment {
-    private FirebaseFirestore _firestore;
-    private List<ChatUser> _storedChats;
-    private ChatAdapter _adapter;
-    private UserSingleton _userSingleton;
-    private FirebaseDatabase _database;
+    private FirebaseFirestore firestoreInstance;
+    private List<ChatUser> chatsList;
+    private ChatAdapter chatAdapter;
+    private UserSingleton userSingleton;
+    private FirebaseDatabase firebaseDatabase;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        _firestore = FirebaseFirestore.getInstance();
-        _database = FirebaseDatabase.getInstance();
-        _userSingleton = UserSingleton.getInstance();
-        _storedChats = new ArrayList<>();
-        _adapter = new ChatAdapter(_storedChats);
+        firestoreInstance = FirebaseFirestore.getInstance();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        userSingleton = UserSingleton.getInstance();
+        chatsList = new ArrayList<>();
+        chatAdapter = new ChatAdapter(chatsList);
     }
 
     @SuppressLint("SetTextI18n")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Replace with your actual layout file
         View rootView = inflater.inflate(R.layout.fragment_chat, container, false);
 
-        // Initialize views manually
-        RecyclerView _chatsList = rootView.findViewById(R.id.chatsList);
-        TextView _welcomeTextView = rootView.findViewById(R.id.welcomeTextView);
-        SearchBar _searchBar = rootView.findViewById(R.id.searchBar);
-        ProgressBar _progressBar = rootView.findViewById(R.id.progress);
+        // Initialize views
+        RecyclerView chatsRecyclerView = rootView.findViewById(R.id.chatsList);
+        TextView welcomeTextView = rootView.findViewById(R.id.welcomeTextView);
+        SearchBar searchBar = rootView.findViewById(R.id.searchBar);
+        ProgressBar loadingProgressBar = rootView.findViewById(R.id.progress);
 
         // Set RecyclerView layout manager and adapter
-        _chatsList.setLayoutManager(new LinearLayoutManager(getContext()));
-        _chatsList.setAdapter(_adapter);
+        chatsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        chatsRecyclerView.setAdapter(chatAdapter);
 
         // Set the welcome message
-        _welcomeTextView.setText("Welcome back " + _userSingleton.getFirstName());
-        _searchBar.setOnClickListener(v -> {
+        welcomeTextView.setText("Welcome back " + userSingleton.getFirstName());
+        searchBar.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), SearchActivity.class);
             startActivity(intent);
         });
 
-        _chatsList.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-            GestureDetector gestureDetector = new GestureDetector(_chatsList.getContext(), new GestureDetector.SimpleOnGestureListener() {
+        chatsRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            GestureDetector gestureDetector = new GestureDetector(chatsRecyclerView.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onSingleTapUp(MotionEvent e) {
                     return true;
@@ -92,9 +93,17 @@ public class ChatFragment extends Fragment {
                 View child = rv.findChildViewUnder(e.getX(), e.getY());
                 if (child != null && gestureDetector.onTouchEvent(e)) {
                     int position = rv.getChildAdapterPosition(child);
-                    // Handle item click here
-                    ChatUser chatUser = _storedChats.get(position);
-                    Log.d(Tags.Debugger.KEY, "Item clicked at position: " + chatUser.getUsername());
+                    ChatUser chatUser = chatsList.get(position);
+
+//                    Intent startChatServiceIntent = new Intent(getActivity(), ChatService.class);
+//                    startChatServiceIntent.putExtra(Tags.IntentKeys.UID, chatUser.getUid());
+//                    getActivity().startService(startChatServiceIntent);
+
+                    Intent openChatRoomIntent = new Intent(getActivity(), ChatRoomActivity.class);
+                    openChatRoomIntent.putExtra(Tags.IntentKeys.CHAT_USER, chatUser);
+                    openChatRoomIntent.putExtra(Tags.IntentKeys.UID, chatUser.getUid());
+                    startActivity(openChatRoomIntent);
+
                     return true;
                 }
                 return false;
@@ -111,80 +120,78 @@ public class ChatFragment extends Fragment {
             }
         });
 
-        // Set up Firebase listener
-        setupFirebaseListener();
-        _progressBar.setVisibility(View.GONE);
+        loadChatsFromFirebase();
+        loadingProgressBar.setVisibility(View.GONE);
 
         return rootView;
     }
 
-    private void setupFirebaseListener() {
-        DatabaseReference _ref = _database.getReference(Tags.Firebase.CHATS);
-        _ref.addValueEventListener(new ValueEventListener() {
+    protected void loadChatsFromFirebase() {
+        DatabaseReference chatsReference = firebaseDatabase.getReference(Tags.Firebase.CHATS);
+        chatsReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                insertFromDatabase(snapshot);
+                for (DataSnapshot documentSnapshot : snapshot.getChildren()) {
+                    String chatKey = documentSnapshot.getKey();
+
+                    if (chatKey.contains(userSingleton.getUid())) {
+                        String senderUid = ChatUtils.getSenderUidFromChatKey(chatKey);
+                        retrieveSenderDetails(senderUid, chatUser -> {
+                            Query lastMessage = documentSnapshot.child(Tags.Firebase.MESSAGES)
+                                    .getRef()
+                                    .orderByChild(Tags.Firebase.TIMESTAMP)
+                                    .limitToLast(1);
+                            lastMessage.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    for (DataSnapshot messageSnapshot : snapshot.getChildren()) {
+                                        String text = messageSnapshot.child(Tags.MessageFields.TEXT).getValue(String.class);
+                                        chatUser.setLastMessage(text);
+                                        System.out.println("Last Message: " + text);
+                                    }
+                                    chatsList.clear();
+                                    chatsList.add(chatUser);
+                                    chatAdapter.notifyDataSetChanged();
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    Log.d("ERR", error.getMessage());
+                                }
+                            });
+                        });
+                    }
+                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.d(Tags.Debugger.KEY, String.valueOf(error));
+                Log.e(Tags.Debugger.KEY, "Failed to fetch latest message: " + error.getMessage());
             }
         });
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    protected void insertFromDatabase(DataSnapshot dataSnapshot) {
-        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-            String chatKey = snapshot.child(Tags.Firebase.CHAT_KEY).getValue(String.class);
-            if (chatKey != null && chatKey.contains(_userSingleton.getUid())) {
-                String senderUid = ChatUtils.getSenderUidFromChatKey(chatKey);
-                fetchSender(senderUid, storedUser -> {
-                    Query latestMessageQuery = snapshot.child(Tags.Firebase.MESSAGES).getRef().orderByChild(Tags.Firebase.TIMESTAMP).limitToLast(1);
-                    latestMessageQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            for (DataSnapshot messageSnapshot : dataSnapshot.getChildren()) {
-                                String messageText = messageSnapshot.child("text").getValue(String.class);
-                                if (messageText != null) {
-                                    storedUser.setLastMessage(messageText);
-                                    _storedChats.add(storedUser);
-                                    _adapter.notifyDataSetChanged();
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            Log.e(Tags.Debugger.KEY, "Failed to fetch latest message: " + databaseError.getMessage());
-                        }
-                    });
-                });
-            }
-        }
-    }
-
-    protected void fetchSender(String uid, OnSenderFetchedListener listener) {
-        _firestore.collection(Tags.Firebase.USERS_COLLECTION)
-                .document(uid)
-                .get()
+    protected void retrieveSenderDetails(String userId, OnSenderDetailsFetchedListener listener) {
+        firestoreInstance.collection(Tags.Firebase.USERS_COLLECTION).document(userId).get()
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult().exists()) {
-                        DocumentSnapshot documentSnapshot = task.getResult();
-                        String firstName = documentSnapshot.getString(Tags.UserFields.FIRST_NAME);
-                        String secondName = documentSnapshot.getString(Tags.UserFields.SECOND_NAME);
-                        String email = documentSnapshot.getString(Tags.UserFields.EMAIL);
-                        String photo = documentSnapshot.getString(Tags.UserFields.PROFILE_PICTURE);
-                        ChatUser storedUser = new ChatUser(photo, firstName, secondName, email, uid);
-
-                        listener.onSenderFetched(storedUser);
-                    } else {
-                        Log.e(Tags.FirebaseErrors.USER_NOT_FOUND, "User not found");
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot snapshot = task.getResult();
+                        String firstName = snapshot.getString(Tags.UserFields.FIRST_NAME);
+                        String lastName = snapshot.getString(Tags.UserFields.SECOND_NAME);
+                        String email = snapshot.getString(Tags.UserFields.EMAIL);
+                        String photo = snapshot.getString(Tags.UserFields.PROFILE_PICTURE);
+                        ChatUser storedUser = new ChatUser(photo, firstName, lastName, email, userId);
+                        listener.onSenderDetailsFetched(storedUser);
                     }
-                }).addOnFailureListener(e -> Log.e(Tags.FirebaseErrors.DEADLINE_EXCEEDED, "Error: " + e.getMessage()));
+                });
     }
 
-    public interface OnSenderFetchedListener {
-        void onSenderFetched(ChatUser storedUser);
+    public interface OnSenderDetailsFetchedListener {
+        void onSenderDetailsFetched(ChatUser chatUser);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 }

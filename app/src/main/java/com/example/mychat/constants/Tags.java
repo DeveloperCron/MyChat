@@ -47,4 +47,16 @@ public class Tags {
         public static final String UID = "uid";
         public static final String FRIENDS = "friends";
     }
+
+    public static class IntentKeys {
+        public static final String USER = "USER";
+        public static final String CHAT_USER = "CHAT_USER";
+        public static final String UID = "UID";
+    }
+
+    public static class MessageFields {
+        public static final String SENDER = "sender";
+        public static final String TEXT = "message";
+        public static final String TIMESTAMP = "timestamp";
+    }
 }

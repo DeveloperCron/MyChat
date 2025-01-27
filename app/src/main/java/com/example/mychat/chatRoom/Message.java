@@ -6,14 +6,19 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Message {
+    public enum ModelType {
+        SENDER,
+        RECEIVER
+    }
     private String sender;
     private String text;
     private long timestamp;
-
-    public Message(String sender, String text, long timestamp) {
+    private ModelType messageType;
+    public Message(String sender, String text, long timestamp, ModelType messageType) {
         this.sender = sender;
         this.text = text;
         this.timestamp = timestamp;
+        this.messageType = messageType;
     }
 
     public String getSender() {
@@ -38,6 +43,10 @@ public class Message {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public ModelType getMessageType(){
+        return this.messageType;
     }
 
     public String convertTimestampToHour() {

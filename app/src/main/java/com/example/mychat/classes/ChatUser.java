@@ -1,6 +1,8 @@
 package com.example.mychat.classes;
 
-public class ChatUser {
+import java.io.Serializable;
+
+public class ChatUser implements Serializable {
     private String photo;
     private String first_name;
     private String second_name;

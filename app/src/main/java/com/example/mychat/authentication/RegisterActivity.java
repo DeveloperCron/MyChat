@@ -6,6 +6,7 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.mychat.classes.UserSingleton;
 import com.example.mychat.constants.Tags;
 import com.example.mychat.databinding.ActivityRegisterBinding;
 import com.example.mychat.home.HomeActivity;
@@ -21,6 +22,7 @@ public class RegisterActivity extends AppCompatActivity {
     ActivityRegisterBinding _binding;
     private FirebaseAuth _firebaseAuth;
     private FirebaseFirestore _firestore;
+    private UserSingleton _userSingleton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +32,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         _firebaseAuth = FirebaseAuth.getInstance();
         _firestore = FirebaseFirestore.getInstance();
+        _userSingleton = UserSingleton.getInstance();
     }
 
     @Override
@@ -44,8 +47,6 @@ public class RegisterActivity extends AppCompatActivity {
                     this, task -> {
                         if (task.isSuccessful()) {
                             FirebaseUser _currentUser = _firebaseAuth.getCurrentUser();
-
-                            assert _currentUser != null;
                             initializeUser(_currentUser);
 
                             startActivity(new Intent(this, HomeActivity.class));
@@ -63,8 +64,14 @@ public class RegisterActivity extends AppCompatActivity {
         String _userUID = _firebaseUser.getUid(); // Get UID as a string
 
         Map<String, String> _user = new HashMap<>();
-        _user.put("name", _firebaseUser.getEmail());
-        _user.put("photo_url", String.valueOf(_firebaseUser.getPhotoUrl()));
+        _user.put("first_name", _firebaseUser.getEmail());
+        _user.put("second_name", _firebaseUser.getEmail());
+        _user.put("email", _firebaseUser.getEmail());
+        _userSingleton.setFirstName(_firebaseUser.getEmail());
+        _userSingleton.setSecondName(_firebaseUser.getEmail());
+        _userSingleton.setEmail(_firebaseUser.getEmail());
+        _userSingleton.setUid(_userUID);
+//        _user.put("photo_url", String.valueOf(_firebaseUser.getPhotoUrl()));
 
         _firestore.collection(Tags.Firebase.USERS_COLLECTION)
                 .document(_userUID)  // Use UID directly as the document ID

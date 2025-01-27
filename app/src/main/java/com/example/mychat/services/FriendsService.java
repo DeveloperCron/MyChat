@@ -40,8 +40,10 @@ public class FriendsService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         List<String> friendsList = intent.getStringArrayListExtra("friendsList");
+        assert friendsList != null;
+
         Log.d(Tags.Debugger.KEY, String.valueOf(friendsList.size()));
-        if (friendsList != null && !friendsList.isEmpty()) {
+        if (!friendsList.isEmpty()) {
             fetchFriends(friendsList);
         }
         return START_NOT_STICKY;

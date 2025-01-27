@@ -7,12 +7,13 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.mychat.R;
 import com.example.mychat.databinding.ActivityHomeBinding;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class HomeActivity extends AppCompatActivity {
     ActivityHomeBinding _binding;
     private ChatFragment _chatFragment;
-    //    private FirebaseAuth _firebaseAuth;
+    private FirebaseAuth _firebaseAuth;
     private FirebaseFirestore _firestore;
     private FragmentManager _fragmentManager;
 //    private UserSingleton _userSingleton;
@@ -24,11 +25,9 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(_binding.getRoot());
 
         _chatFragment = new ChatFragment();
-
+        _firebaseAuth = FirebaseAuth.getInstance();
         _fragmentManager = getSupportFragmentManager();
-//        _firebaseAuth = FirebaseAuth.getInstance();
         _firestore = FirebaseFirestore.getInstance();
-//        _userSingleton = UserSingleton.getInstance();
     }
 
     @Override

@@ -84,7 +84,6 @@ public class SearchActivity extends AppCompatActivity {
                 View child = rv.findChildViewUnder(e.getX(), e.getY());
                 if (child != null && gestureDetector.onTouchEvent(e)) {
                     int position = rv.getChildAdapterPosition(child);
-                    // Handle item click here
                     ChatUser chatUser = _friendsList.get(position);
                     Log.d(Tags.Debugger.KEY, "Item clicked at position: " + chatUser.getUsername());
                     return true;
